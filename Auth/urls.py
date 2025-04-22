@@ -4,8 +4,6 @@ from rest_framework_simplejwt.views import TokenRefreshView,TokenVerifyView,Toke
 from .views import GoogleLoginView, GithubLoginView,Databases
 
 router = routers.DefaultRouter()
-# Removed incorrect router registration
-
 
 urlpatterns = [
     path('auth/login', include(router.urls)),

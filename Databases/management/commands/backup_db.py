@@ -49,27 +49,32 @@ class Command(BaseCommand):
                     logger.error(f"[{b.id_backup}] Error en hilo de backup: {e}")
 
     def _run_backup_workflow(self, backup_instance):
-        frequency = backup_instance.id_database.id_frecuenly.time
-        new_date_init = backup_instance.date_init + frequency
+        try:
+            frequency = backup_instance.id_database.id_frecuenly.time
+            new_date_init = backup_instance.date_init + frequency
                 
-        Backup.objects.create(id_database=backup_instance.id_database,
-            date_init=new_date_init,
-            date_finishing=timezone.now(),
-            location=backup_instance.location,
-            state=1)
-        db = backup_instance.id_database
+            Backup.objects.create(id_database=backup_instance.id_database,
+                date_init=new_date_init,
+                date_finishing=timezone.now(),
+                location=backup_instance.location,
+                state=1)
+            db = backup_instance.id_database
+        
+            
+            backup_instance.state = 3 
+            backup_instance.save()
 
-        # ejemplo: si gestionas fechas/frecuencia aquí
-        backup_instance.state = 3  # In flight
-        backup_instance.save()
+            # Ejecuta backup + encriptado
+            self.backup_database(db)
 
-        # Ejecuta backup + encriptado
-        self.backup_database(db)
-
-        # al terminar:
-        backup_instance.state = 2  # Successful
-        backup_instance.date_finishing = timezone.now()
-        backup_instance.save()
+            # al terminar:
+            backup_instance.state = 2  # Successful
+            backup_instance.date_finishing = timezone.now()
+            backup_instance.save()
+        except Exception as e:
+            logger.exception(f"Error al crear un backup {backup_instance.id_backup}: {e}")
+            backup_instance.state = 0
+            backup_instance.save()
 
                 
 
@@ -165,17 +170,47 @@ class Command(BaseCommand):
                 db_path,
                 f'.backup "{backup_path}"'
             ]
+            
+        elif db_type == 'mongodb':
+            mongodump = shutil.which("mongodump")
+            if not mongodump:
+                raise CommandError("mongodump no encontrado en el PATH.")
+            dump_dir = backup_path.replace('.gz', '')  # Mongo crea carpetas
+            command = [
+                mongodump,
+                f'--username={db_user}',
+                f'--password={db_password}',
+                f'--db={db_name}',
+                f'--out={dump_dir}'
+            ]
+            if db_host:
+                command += [f'--host={db_host}']
+            if db_port:
+                command += [f'--port={db_port}']
+            env["MONGODB_URI"] = f"mongodb://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+
+        else:
+            raise CommandError(f"Tipo de base de datos no soportado: {db_type}")
         return command, env
 
 
 
 
     #ENCRIPTACION
-    def execute_command(self, command, env, db_name, backup_path,db_password):
+    def execute_command(self, command, env, db_name, backup_path,db_password,**kwargs):
         try:
             result = subprocess.run(command, env=env, capture_output=True, text=True, check=True)
             logger.info(f'Backup de {db_name} creado en: {backup_path}')
             logger.debug(f'Salida del comando: {result.stdout}')
+            
+            db_type = kwargs.get('db_type', 'unknown')
+            
+            if db_type == 'mongodb':
+                import tarfile
+                tar_path = backup_path + ".tar.gz"
+                with tarfile.open(tar_path, "w:gz") as tar:
+                    tar.add(backup_path, arcname=os.path.basename(backup_path))
+                backup_path = tar_path  # usamos el tar.gz para cifrar
 
             # 6. Encriptar el backup utilizando OpenSSL
             encryption_password = db_password

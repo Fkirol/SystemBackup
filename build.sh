@@ -13,4 +13,4 @@ python manage.py collectstatic --no-input
 
 python manage.py migrate
 
-#python database_inizializer.py
+python database_inizializer.py
