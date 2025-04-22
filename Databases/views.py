@@ -12,14 +12,14 @@ from django.utils.decorators import method_decorator
 from .management.commands.backup_db import Command
 
 class CrudDatabases(viewsets.ModelViewSet):
-    #permission_classes = [CustomAuthentication]
+    permission_classes = [CustomAuthentication]
     serializer_class = DatabasesSerializer
     pagination_class=None
     queryset = Db.objects.all()
 
-   # def get_queryset(self):
-    #    x = Db.objects.filter(id_user=self.request.user)
-     #   return x
+    def get_queryset(self):
+        x = Db.objects.filter(id_user=self.request.user)
+        return x
     
     
 
@@ -39,14 +39,14 @@ class ListBackups(ListAPIView):
         return Backup.objects.filter(id_database=id_database).order_by('date_init')
     
 class BackupView(viewsets.ModelViewSet):
-    #permission_classes = [CustomAuthentication]
+    permission_classes = [CustomAuthentication]
     serializer_class = BackupsSeria
     pagination_class=None
     queryset = Backup.objects.all()
     
-    # def get_queryset(self):
-    #    x = Db.objects.filter(id_user=self.request.user)
-    #   return x
+    def get_queryset(self):
+        x = Db.objects.filter(id_user=self.request.user)
+        return x
     
 @method_decorator(csrf_exempt, name='dispatch')
 class RunBackupAPIView(APIView):
