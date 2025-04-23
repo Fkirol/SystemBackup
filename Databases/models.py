@@ -24,7 +24,7 @@ class Database(models.Model):
     id_frecuenly = models.ForeignKey(Frequency,on_delete=models.CASCADE)    
     
     
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=150)
     host = models.CharField(max_length=100)
     port = models.IntegerField(default=5432)  # Por defecto para PostgreSQL
     username = models.CharField(max_length=100)
