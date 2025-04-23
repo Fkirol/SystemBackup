@@ -28,7 +28,7 @@ class Database(models.Model):
     host = models.CharField(max_length=100)
     port = models.IntegerField(default=5432)  # Por defecto para PostgreSQL
     username = models.CharField(max_length=100)
-    password = models.CharField(max_length=100)  # Considera encriptar la contraseña
+    password = models.CharField(max_length=200)  # Considera encriptar la contraseña
     
     
     def __str__(self) -> str:

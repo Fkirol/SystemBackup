@@ -66,6 +66,8 @@ class Command(BaseCommand):
 
             # Ejecuta backup + encriptado
             self.backup_database(db)
+            logger.info(f"Creando la Base De Datos...")
+            
 
             # al terminar:
             backup_instance.state = 2  # Successful
