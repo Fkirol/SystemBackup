@@ -6,7 +6,7 @@ from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator
 import Notifications.routing
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings.production')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Backend.settings')
 django.setup()
 
 # crea primero la app real
