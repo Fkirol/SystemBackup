@@ -97,7 +97,7 @@ class Command(BaseCommand):
             raise Exception(f"Error al obtener/desencriptar la contraseña: {e}")
 
         # 1.1 Validación del tipo de base de datos
-        valid_db_types = ['postgresql', 'mysql', 'sqlite']
+        valid_db_types = ['postgresql', 'mysql', 'sqlite', 'mongodb']
         if db_type not in valid_db_types:
             msg = f'Tipo de base de datos no soportado: {db_type}'
             logger.error(msg)

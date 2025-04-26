@@ -44,9 +44,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Auth',
     'Databases',
+    'Notifications',
     'corsheaders',
     'rest_framework',
     'drf_yasg',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -80,7 +82,22 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Backend.wsgi.application'
+ASGI_APPLICATION = 'Backend.asgi.application'
 
+REDIS_URL = os.environ.get('REDIS_URL')
+if not REDIS_URL:
+    # Manejar el error: mostrar un mensaje, usar un valor por defecto local, etc.
+    print("Error: REDIS_URL no está definida.  Usando una configuración local por defecto.")
+    REDIS_URL = 'redis://localhost:6379'  # Configuración local por defecto
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'url': REDIS_URL,
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -161,6 +178,9 @@ if DEBUG:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
-
+EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
+EMAIL_HOST = os.environ.get("EMAIL_HOST")
+EMAIL_PORT = os.environ.get("EMAIL_PORT")
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")

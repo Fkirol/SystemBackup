@@ -20,7 +20,8 @@ class Database(models.Model):
     id_database = models.AutoField(primary_key=True,)
     
     id_type=models.ForeignKey(Type,on_delete=models.CASCADE)
-    id_user=models.CharField(max_length=30)
+    id_user=models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,)
     id_frecuenly = models.ForeignKey(Frequency,on_delete=models.CASCADE)    
     
     

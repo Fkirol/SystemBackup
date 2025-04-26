@@ -4,6 +4,8 @@ from django.contrib import admin
 # admin.py
 from django.contrib import admin
 from .models import Type, Frequency, Database, Backup
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 @admin.register(Type)
 class TypeAdmin(admin.ModelAdmin):
