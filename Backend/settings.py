@@ -84,19 +84,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Backend.wsgi.application'
 ASGI_APPLICATION = 'Backend.asgi.application'
 
-REDIS_URL = os.environ.get('REDIS_URL')
-if not REDIS_URL:
-    # Manejar el error: mostrar un mensaje, usar un valor por defecto local, etc.
-    print("Error: REDIS_URL no está definida.  Usando una configuración local por defecto.")
-    REDIS_URL = 'redis://localhost:6379'  # Configuración local por defecto
-
+#REDIS_URL = os.environ.get('REDIS_URL')
+#if not REDIS_URL:
+#    # Manejar el error: mostrar un mensaje, usar un valor por defecto local, etc.
+#    print("Error: REDIS_URL no está definida.  Usando una configuración local por defecto.")
+#    REDIS_URL = 'redis://localhost:6379'  # Configuración local por defecto
+#
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'url': REDIS_URL,
-        },
+  'default': {
+    'BACKEND': 'channels_redis.core.RedisChannelLayer',
+    'CONFIG': {
+      'hosts': [os.environ['REDIS_URL']],   # la URL que pusiste en Render env var
     },
+  }
 }
 
 #CHANNEL_LAYERS = {
