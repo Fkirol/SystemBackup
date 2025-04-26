@@ -10,9 +10,7 @@ class Notification(models.Model):
         (STATUS_FAILED, 'Failed'),
     ]
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE,
-                             related_name='notifications',default=1)
+    user = models.CharField(max_length=50,default=1)
     backup = models.ForeignKey(Backup,
                                on_delete=models.CASCADE,
                                related_name='notifications')
