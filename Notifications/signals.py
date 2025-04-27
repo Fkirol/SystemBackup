@@ -51,12 +51,12 @@ def backup_status_notification(sender, instance, created, **kwargs):
 
     try:
         send_mail(
-            subject,
-            message,
-            settings.EMAIL_BACKEND,
-            ["lukushi040528@gmail.com"],
+            subject="Se suscribio un pendejo",
+            message="We're glad to have you on board!",
+            from_email="codeslayersdevs@gmail.com",
+            recipient_list=["lukushi040528@gmail.com"],
             fail_silently=False,
-        )
+            )
         logger.info(f"✔️ Email enviado a {instance.id_database.id_user}")
     except Exception as e:
         logger.warning(f"Error enviando email de notificación: {e}")
