@@ -15,7 +15,6 @@ class CrudDatabases(viewsets.ModelViewSet):
     permission_classes = [CustomAuthentication]
     serializer_class = DatabasesSerializer
     pagination_class=None
-    queryset = Db.objects.all()
 
     def get_queryset(self):
         x = Db.objects.filter(id_user=self.request.user)
@@ -42,10 +41,9 @@ class BackupView(viewsets.ModelViewSet):
     permission_classes = [CustomAuthentication]
     serializer_class = BackupsSeria
     pagination_class=None
-    queryset = Backup.objects.all()
     
     def get_queryset(self):
-        x = Db.objects.filter(id_user=self.request.user)
+        x = Backup.objects.filter(id_user=self.request.user)
         return x
     
 @method_decorator(csrf_exempt, name='dispatch')

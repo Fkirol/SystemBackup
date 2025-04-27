@@ -179,34 +179,34 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',           # o INFO para menos ruido
-    },
-    'loggers': {
-        # Asegúrate de capturar también errores de Channels y Daphne
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'channels': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'daphne': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
+#LOGGING = {
+ #   'version': 1,
+  #  'disable_existing_loggers': False,
+   # 'handlers': {
+    #    'console': {
+     #       'class': 'logging.StreamHandler',
+      #  },
+#    },
+ #   'root': {
+ #       'handlers': ['console'],
+  #      'level': 'DEBUG',           # o INFO para menos ruido
+   # },
+    #'loggers': {
+     #   # Asegúrate de capturar también errores de Channels y Daphne
+      #  'django': {
+       #     'handlers': ['console'],
+        #    'level': 'DEBUG',
+       #     'propagate': True,
+       # },
+       # 'channels': {
+       #     'handlers': ['console'],
+       #     'level': 'DEBUG',
+       #     'propagate': True,
+       # },
+       # 'daphne': {
+       #     'handlers': ['console'],
+       #     'level': 'DEBUG',
+       #     'propagate': True,
+ #       },
+ #   },
+#}
