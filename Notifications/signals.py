@@ -17,22 +17,21 @@ logger.setLevel(logging.INFO)
 def backup_status_notification(sender, instance, created, **kwargs):
     if created:
         return
-    logger.info("⚡ Cargando notifications/signals.py")
+    logger.info("Cargando notifications/signals.py")
 
     if instance.state == 2:
         status = Notification.STATUS_SUCCESS
-        subject = 'Backup completado con éxito'
+        subject = 'Backup completado con exito'
         message = (
             f"Tu backup #{instance.id_backup} de la DB "
-            f"'{instance.id_database.name}' finalizó correctamente."
+            f"'{instance.id_database.name}' finalizo correctamente."
         )
     elif instance.state == 0:
         status = Notification.STATUS_FAILED
         subject = 'Backup FALLIDO'
         message = (
             f"Tu backup #{instance.id_backup} de la DB "
-            f"'{instance.id_database.name}' ha fallado. "
-            "Por favor revisa los logs."
+            f"'{instance.id_database.name}' ha fallado."
         )
     else:
         return
@@ -44,7 +43,7 @@ def backup_status_notification(sender, instance, created, **kwargs):
             status=status,
             message=message,
         )
-        logger.info(f"✔️ Notification creada: id={notification.id}")
+        logger.info(f"Notification creada: id={notification.id}")
     except Exception as e:
         logger.error(f"Error al crear la notificación: {e}")
         return
@@ -57,10 +56,9 @@ def backup_status_notification(sender, instance, created, **kwargs):
             recipient_list=["lukushi040528@gmail.com"],
             fail_silently=False,
             )
-        logger.info(f"✔️ Email enviado a {instance.id_database.id_user}")
+        logger.info(f"Email enviado a {instance.id_database.id_user}")
     except Exception as e:
         logger.warning(f"Error enviando email de notificación: {e}")
-    logger.info("llegamos a donde hacia falta")
     try:
         channel_layer = get_channel_layer()
         group_name = f"notifications_{instance.id_database.id_user}"

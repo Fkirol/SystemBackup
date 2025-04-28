@@ -13,6 +13,9 @@ from cryptography.fernet import Fernet
 from django.db import transaction
 from django.db.models import Q
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import boto3
+from google.cloud import storage as gcs_storage
+
 
 # Configuración del logger
 logger = logging.getLogger(__name__)
@@ -229,6 +232,9 @@ class Command(BaseCommand):
             # Eliminar el archivo de backup sin encriptar
             os.remove(backup_path)
             logger.debug("Archivo de backup sin encriptar eliminado.")
+            
+            
+            self.store_backup(encrypted_backup_path)
 
 
         except subprocess.CalledProcessError as e:
@@ -242,5 +248,60 @@ class Command(BaseCommand):
             msg = f"Comando no encontrado: {e}"
             logger.error(msg)
            
+           
+    def store_backup(self, local_encrypted_path):
+    # Aquí accedemos a la location
+
+        # Encuentra el Backup relacionado al archivo actual
+        filename = os.path.basename(local_encrypted_path)
+        backup = Backup.objects.filter(location__isnull=False, state=3).order_by('-date_init').first()
+        if not backup:
+            logger.warning("No se encontró Backup en proceso para asociar la ubicación.")
+            return
+
+        destination = backup.location.strip()
+
+        if destination.startswith('s3://'):
+            # Subir a Amazon S3
+            import boto3
+            from urllib.parse import urlparse
+
+            parsed = urlparse(destination)
+            bucket = parsed.netloc
+            key_prefix = parsed.path.lstrip('/')
+            s3_key = os.path.join(key_prefix, filename)
+
+            s3 = boto3.client('s3')
+            s3.upload_file(local_encrypted_path, bucket, s3_key)
+            logger.info(f"Backup subido a Amazon S3 en: s3://{bucket}/{s3_key}")
+
+            # Borrar archivo local después de subir
+            os.remove(local_encrypted_path)
+
+        elif destination.startswith('gs://'):
+            # Subir a Google Cloud Storage
+            from google.cloud import storage
+            from urllib.parse import urlparse
+
+            parsed = urlparse(destination)
+            bucket = parsed.netloc
+            prefix = parsed.path.lstrip('/')
+            gcs_blob_name = os.path.join(prefix, filename)
+
+            storage_client = storage.Client()
+            bucket = storage_client.bucket(bucket)
+            blob = bucket.blob(gcs_blob_name)
+            blob.upload_from_filename(local_encrypted_path)
+            logger.info(f"Backup subido a Google Cloud Storage en: gs://{bucket.name}/{gcs_blob_name}")
+
+            # Borrar archivo local después de subir
+            os.remove(local_encrypted_path)
+
+        else:
+            # Copiar a ruta local personalizada
+            final_path = os.path.join(destination, filename)
+            os.makedirs(destination, exist_ok=True)
+            shutil.move(local_encrypted_path, final_path)
+            logger.info(f"Backup movido a ubicación local: {final_path}")
 
     
