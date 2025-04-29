@@ -254,7 +254,7 @@ class Command(BaseCommand):
 
         # Encuentra el Backup relacionado al archivo actual
         filename = os.path.basename(local_encrypted_path)
-        backup = Backup.objects.filter(location__isnull=False, state=3).order_by('-date_init').first()
+        backup = Backup.objects.filter(location__isnull=False, state=1).order_by('-date_init').first()
         if not backup:
             logger.warning("No se encontró Backup en proceso para asociar la ubicación.")
             return
@@ -298,10 +298,11 @@ class Command(BaseCommand):
             os.remove(local_encrypted_path)
 
         else:
-            # Copiar a ruta local personalizada
-            final_path = os.path.join(destination, filename)
-            os.makedirs(destination, exist_ok=True)
+            # Ruta local: crea el directorio si no existe y mueve el archivo
+            out_dir = os.path.abspath(destination)
+            os.makedirs(out_dir, exist_ok=True)
+            final_path = os.path.join(out_dir, filename)
             shutil.move(local_encrypted_path, final_path)
-            logger.info(f"Backup movido a ubicación local: {final_path}")
+            logger.info(f"Backup guardado localmente en: {final_path}")
 
     
