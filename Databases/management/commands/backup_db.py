@@ -250,49 +250,49 @@ class Command(BaseCommand):
            
            
     def store_backup(self, local_encrypted_path):
-            filename = os.path.basename(local_encrypted_path)
-            # Buscamos el Backup en curso (estado 1 = Pending)
-            backup = (
-                Backup.objects
-                      .filter(location__isnull=False, state=3)
-                    .order_by('-date_init')
-                    .first()
-            )
-            if not backup:
-                logger.warning("No hay Backup pendiente para asociar ubicación.")
-                return
+    # Aquí accedemos a la location
 
-            dest = backup.location.strip()
+        # Encuentra el Backup relacionado al archivo actual
+        filename = os.path.basename(local_encrypted_path)
+        backup = Backup.objects.filter(location__isnull=False, state=1).order_by('-date_init').first()
+        if not backup:
+            logger.warning("No se encontró Backup en proceso para asociar la ubicación.")
+            return
 
-            # REMOTO S3
-            if dest.lower().startswith('s3://'):
-                from urllib.parse import urlparse
-                parsed = urlparse(dest)
-                bucket = parsed.netloc
-                prefix = parsed.path.lstrip('/')
-                key = os.path.join(prefix, filename)
-                boto3.client('s3').upload_file(local_encrypted_path, bucket, key)
-                logger.info(f"Backup subido a S3: s3://{bucket}/{key}")
-                os.remove(local_encrypted_path)
+        destination = backup.location.strip()
 
-            elif dest.lower().startswith('gs://'):
-                from urllib.parse import urlparse
-                parsed = urlparse(dest)
-                bucket_name = parsed.netloc
-                prefix = parsed.path.lstrip('/')
-                blob_name = os.path.join(prefix, filename)
-                client = gcs_storage.Client()
-                bucket = client.bucket(bucket_name)
-                blob = bucket.blob(blob_name)
-                blob.upload_from_filename(local_encrypted_path)
-                logger.info(f"Backup subido a GCS: gs://{bucket_name}/{blob_name}")
-                os.remove(local_encrypted_path)
+        if destination.startswith('s3://'):
+            # Subir a Amazon S3
+            import boto3
+            from urllib.parse import urlparse
 
-        # LOCAL
-            else:
-                # dest puede ser "C:\ruta\..." o "/ruta/aqui"
-                out_dir = os.path.abspath(dest)
-                os.makedirs(out_dir, exist_ok=True)
-                final_path = os.path.join(out_dir, filename)
-                shutil.move(local_encrypted_path, final_path)
-                logger.info(f"Backup movido localmente a: {final_path}")
+            parsed = urlparse(destination)
+            bucket = parsed.netloc
+            key_prefix = parsed.path.lstrip('/')
+            s3_key = os.path.join(key_prefix, filename)
+
+            s3 = boto3.client('s3')
+            s3.upload_file(local_encrypted_path, bucket, s3_key)
+            logger.info(f"Backup subido a Amazon S3 en: s3://{bucket}/{s3_key}")
+
+            # Borrar archivo local después de subir
+            os.remove(local_encrypted_path)
+
+        elif destination.startswith('gs://'):
+            # Subir a Google Cloud Storage
+            from google.cloud import storage
+            from urllib.parse import urlparse
+
+            parsed = urlparse(destination)
+            bucket = parsed.netloc
+            prefix = parsed.path.lstrip('/')
+            gcs_blob_name = os.path.join(prefix, filename)
+
+            storage_client = storage.Client()
+            bucket = storage_client.bucket(bucket)
+            blob = bucket.blob(gcs_blob_name)
+            blob.upload_from_filename(local_encrypted_path)
+            logger.info(f"Backup subido a Google Cloud Storage en: gs://{bucket.name}/{gcs_blob_name}")
+
+            # Borrar archivo local después de subir
+            os.remove(local_encrypted_path)
