@@ -298,7 +298,6 @@ class Command(BaseCommand):
             os.remove(local_encrypted_path)
 
         else:
-            # Ruta local: crea el directorio si no existe y mueve el archivo
             out_dir = os.path.abspath(destination)
             os.makedirs(out_dir, exist_ok=True)
             final_path = os.path.join(out_dir, filename)

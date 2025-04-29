@@ -17,33 +17,28 @@ logger.setLevel(logging.INFO)
 def backup_status_notification(sender, instance, created, **kwargs):
     if created:
         return
-    logger.info("Cargando notifications/signals.py")
 
     if instance.state == 2:
         status = Notification.STATUS_SUCCESS
         subject = 'Backup completado con exito'
         message = (
-            f"Tu backup #{instance.id_backup} de la DB "
-            f"'{instance.id_database.name}' finalizo correctamente."
+            
         )
     elif instance.state == 0:
         status = Notification.STATUS_FAILED
         subject = 'Backup FALLIDO'
         message = (
-            f"Tu backup #{instance.id_backup} de la DB "
-            f"'{instance.id_database.name}' ha fallado."
+           
         )
     else:
         return
     try:
-        logging.info("intentamos crear notificaciones")
         notification = Notification.objects.create(
             user=instance.id_database.id_user,
             backup=instance,
             status=status,
             message=message,
         )
-        logger.info(f"Notification creada: id={notification.id}")
     except Exception as e:
         logger.error(f"Error al crear la notificación: {e}")
         return
@@ -56,13 +51,11 @@ def backup_status_notification(sender, instance, created, **kwargs):
             recipient_list=["lukushi040528@gmail.com"],
             fail_silently=False,
             )
-        logger.info(f"Email enviado a {instance.id_database.id_user}")
     except Exception as e:
         logger.warning(f"Error enviando email de notificación: {e}")
     try:
         channel_layer = get_channel_layer()
         group_name = f"notifications_{instance.id_database.id_user}"
-        logger.info(f"🔔 Señal enviando WS al grupo: {group_name}")
         async_to_sync(channel_layer.group_send)(
             group_name,
             {
