@@ -2,7 +2,7 @@ from django.urls import path,include
 from .views import CrudDatabases,ListBackups,BackupView
 from rest_framework import routers
 from django.urls import path
-from .views import RunBackupAPIView
+from .views import RunBackupAPIView,download_local_backup
 
 router = routers.DefaultRouter()
 router.register(r"databases", CrudDatabases, "databases")
@@ -35,6 +35,7 @@ urlpatterns = [
     path('swagger.<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('backups/<int:db_id>/download-local/',download_local_backup,name='download_local_backup')
 ]
 
 

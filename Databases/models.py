@@ -88,7 +88,7 @@ class Backup(models.Model):
     date_init = models.DateTimeField(default=timezone.now)
     date_finishing = models.DateTimeField(null=True)
     
-    location = models.CharField(max_length=500)
+    location = models.CharField(max_length=500,null=True,blank=True)
     
     state = models.IntegerField(choices=Status.choices, default=Status.PENDING)
     

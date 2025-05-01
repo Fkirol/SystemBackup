@@ -11,7 +11,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='your_secret_key')
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['bacnekdo.onrender.com']
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -70,23 +70,23 @@ ASGI_APPLICATION = 'Backend.asgi.application'
 #    print("Error: REDIS_URL no está definida.  Usando una configuración local por defecto.")
 #    REDIS_URL = 'redis://localhost:6379'  # Configuración local por defecto
 #
-CHANNEL_LAYERS = {
-  'default': {
-    'BACKEND': 'channels_redis.core.RedisChannelLayer',
-    'CONFIG': {
-      'hosts': [os.environ['REDIS_URL']],   # la URL que pusiste en Render env var
-    },
-  }
-}
-
 #CHANNEL_LAYERS = {
-#    'default': {
-#        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#        'CONFIG': {
-#            'hosts': [('127.0.0.1', 6379)],
-#        },
+#  'default': {
+#    'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#    'CONFIG': {
+#      'hosts': [os.environ['REDIS_URL']],   # la URL que pusiste en Render env var
 #    },
+#  }
 #}
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 
 # Database
@@ -178,6 +178,8 @@ EMAIL_PORT = os.environ.get("EMAIL_PORT")
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+
+
 
 #LOGGING = {
  #   'version': 1,
