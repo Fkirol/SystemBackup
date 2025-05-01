@@ -11,7 +11,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='your_secret_key')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['bacnekdo.onrender.com']
 
 # Application definition
 
@@ -70,23 +70,23 @@ ASGI_APPLICATION = 'Backend.asgi.application'
 #    print("Error: REDIS_URL no está definida.  Usando una configuración local por defecto.")
 #    REDIS_URL = 'redis://localhost:6379'  # Configuración local por defecto
 #
-#CHANNEL_LAYERS = {
-#  'default': {
-#    'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#    'CONFIG': {
-#      'hosts': [os.environ['REDIS_URL']],   # la URL que pusiste en Render env var
-#    },
-#  }
-#}
-
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [('127.0.0.1', 6379)],
-        },
+  'default': {
+    'BACKEND': 'channels_redis.core.RedisChannelLayer',
+    'CONFIG': {
+      'hosts': [os.environ['REDIS_URL']],   # la URL que pusiste en Render env var
     },
+  }
 }
+
+#CHANNEL_LAYERS = {
+#    'default': {
+#        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#        'CONFIG': {
+#            'hosts': [('127.0.0.1', 6379)],
+#        },
+#    },
+#}
 
 
 # Database
@@ -104,10 +104,10 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = []
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = ['https://bacnekdo.onrender.com']
-CSRF_COOKIE_SAMESITE = "None"
-SESSION_COOKIE_SAMESITE = "None"
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+#CSRF_COOKIE_SAMESITE = "None"
+#SESSION_COOKIE_SAMESITE = "None"
+#CSRF_COOKIE_SECURE = True
+#SESSION_COOKIE_SECURE = True
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
