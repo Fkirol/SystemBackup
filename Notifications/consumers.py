@@ -42,11 +42,11 @@ class NotificationConsumer(AsyncJsonWebsocketConsumer):
     def mark_as_read(self, ids):
         from Notifications.models import Notification
         Notification.objects.filter(id__in=ids).update(read=True)
-        
+    
+    @database_sync_to_async
     def mark_as_rea(self, notification_id: int):
         from Notifications.models import Notification
-        Notification.objects.filter(id=notification_id).update(read=True)
-        
+        Notification.objects.filter(id=notification_id).update(read=True)    
         
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
@@ -56,4 +56,5 @@ class NotificationConsumer(AsyncJsonWebsocketConsumer):
         message = event['message']
         await self.send_json(message)
         await self.mark_as_rea(message['id'])
+        logger.info(f"Notificación {message['id']} marcada como leída")
         
