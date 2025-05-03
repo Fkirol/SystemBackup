@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 import requests
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
@@ -43,9 +43,6 @@ class CustomAuthentication(BaseAuthentication):
                 return False
         except AuthenticationFailed:
             return False
-
-
-
 
 
 class Databases(APIView):
@@ -174,3 +171,24 @@ class GithubLoginView(APIView):
         except Exception as e:
             print(e)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class LogoutView(APIView):
+    permission_classes = [CustomAuthentication]
+
+    def post(self, request):
+        # 1) Intentar invalidar (blacklist) el refresh token
+        refresh_token = request.COOKIES.get('refresh_token')
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()  # requiere SIMPLE_JWT['BLACKLIST_AFTER_ROTATION']=True y app blacklist instalada
+            except TokenError:
+                # si el token ya expiró o no se puede blacklistear, lo ignoramos
+                pass
+
+        # 2) Limpiar cookies de tokens
+        response = Response(status=status.HTTP_204_NO_CONTENT)
+        # Expirar las cookies inmediatamente
+        response.delete_cookie('access_token', path='/', domain=None, samesite='None', secure=True)
+        response.delete_cookie('refresh_token', path='/', domain=None, samesite='None', secure=True)
+        return response
