@@ -165,30 +165,14 @@ class GithubLoginView(APIView):
             )
             
             
-            
-            
             return response
         except Exception as e:
             print(e)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LogoutView(APIView):
-    permission_classes = [CustomAuthentication]
-
     def post(self, request):
-        # 1) Intentar invalidar (blacklist) el refresh token
-        refresh_token = request.COOKIES.get('refresh_token')
-        if refresh_token:
-            try:
-                token = RefreshToken(refresh_token)
-                token.blacklist()  # requiere SIMPLE_JWT['BLACKLIST_AFTER_ROTATION']=True y app blacklist instalada
-            except TokenError:
-                # si el token ya expiró o no se puede blacklistear, lo ignoramos
-                pass
-
-        # 2) Limpiar cookies de tokens
-        response = Response(status=status.HTTP_204_NO_CONTENT)
-        # Expirar las cookies inmediatamente
-        response.delete_cookie('access_token', path='/', domain=None, samesite='None', secure=True)
-        response.delete_cookie('refresh_token', path='/', domain=None, samesite='None', secure=True)
+        response = Response({"message": "Logged out"}, status=status.HTTP_200_OK)
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
         return response
