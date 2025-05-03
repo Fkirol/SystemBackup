@@ -61,6 +61,7 @@ def backup_status_notification(sender, instance, created, **kwargs):
             {
                 'type': 'notify',
                 'message': {
+                    'id': notification.id,
                     'status': notification.status,
                     'message': notification.message,
                     'created_at': notification.created_at.isoformat(),

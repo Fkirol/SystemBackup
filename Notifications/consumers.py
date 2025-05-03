@@ -43,15 +43,17 @@ class NotificationConsumer(AsyncJsonWebsocketConsumer):
         from Notifications.models import Notification
         Notification.objects.filter(id__in=ids).update(read=True)
         
+    def mark_as_rea(self, notification_id: int):
+        from Notifications.models import Notification
+        Notification.objects.filter(id=notification_id).update(read=True)
+        
         
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
         logger.info(f"WS DISCONNECTED: grupo={self.group_name}")
 
     async def notify(self, event):
-        payload = event.get('message') or event.get('data') or {}
-        await self.send_json(payload)
-        notif_id = payload.get('id')
-        if notif_id:
-            await self.mark_as_read(notif_id)
+        message = event['message']
+        await self.send_json(message)
+        await self.mark_as_rea(message['id'])
         
