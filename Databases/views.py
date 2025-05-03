@@ -14,13 +14,14 @@ from django.contrib.auth.decorators import login_required
 from .management.commands.backup_db import Command
 
 class CrudDatabases(viewsets.ModelViewSet):
+    permission_classes = [CustomAuthentication]
     serializer_class = DatabasesSerializer
     pagination_class=None
-    queryset = Db.objects.all()
+    #queryset = Db.objects.all()
 
-    #def get_queryset(self):
-     #   x = Db.objects.filter(id_user=self.request.user)
-      #  return x
+    def get_queryset(self):
+        x = Db.objects.filter(id_user=self.request.user)
+        return x
     
     
 
