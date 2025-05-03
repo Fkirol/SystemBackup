@@ -102,11 +102,11 @@ class GoogleLoginView(APIView):
             }, status=status.HTTP_200_OK)
             
             # Set the tokens in cookies
-            response.set_cookie('access_token', str(refresh.access_token), httponly=False,
-            secure=False,  # Usa True si estás en producción y usas HTTPS
+            response.set_cookie('access_token', str(refresh.access_token), httponly=True,
+            secure=True,  # Usa True si estás en producción y usas HTTPS
             samesite='None')  # Cambia según tus necesidade)
-            response.set_cookie('refresh_token', str(refresh),httponly=False,
-            secure=False,  # Usa True si estás en producción y usas HTTPS
+            response.set_cookie('refresh_token', str(refresh),httponly=True,
+            secure=True,  # Usa True si estás en producción y usas HTTPS
             samesite='None'  # Cambia según tus necesidade
             )
             
@@ -159,11 +159,11 @@ class GithubLoginView(APIView):
             }, status=status.HTTP_200_OK)
             
             # Set the tokens in cookies
-            response.set_cookie('access_token', str(refresh.access_token), httponly=False,
-            secure=False,  # Usa False si estás en producción y usas HTTPS
+            response.set_cookie('access_token', str(refresh.access_token), httponly=True,
+            secure=True,  # Usa False si estás en producción y usas HTTPS
             samesite='None')  # Cambia según tus necesidade)
-            response.set_cookie('refresh_token', str(refresh),httponly=False,
-            secure=False,  # Usa True si estás en producción y usas HTTPS
+            response.set_cookie('refresh_token', str(refresh),httponly=True,
+            secure=True,  # Usa True si estás en producción y usas HTTPS
             samesite='None'  # Cambia según tus necesidade
             )
             
