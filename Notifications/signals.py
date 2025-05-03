@@ -22,13 +22,13 @@ def backup_status_notification(sender, instance, created, **kwargs):
         status = Notification.STATUS_SUCCESS
         subject = 'Backup completado con exito'
         message = (
-            
+        "Backup done correctly"
         )
     elif instance.state == 0:
         status = Notification.STATUS_FAILED
         subject = 'Backup FALLIDO'
         message = (
-           
+           "Backups failed"
         )
     else:
         return
@@ -45,8 +45,8 @@ def backup_status_notification(sender, instance, created, **kwargs):
 
     try:
         send_mail(
-            subject="Se suscribio un pendejo",
-            message="We're glad to have you on board!",
+            subject=subject,
+            message=message,
             from_email="codeslayersdevs@gmail.com",
             recipient_list=["lukushi040528@gmail.com"],
             fail_silently=False,
@@ -61,7 +61,6 @@ def backup_status_notification(sender, instance, created, **kwargs):
             {
                 'type': 'notify',
                 'message': {
-                    'id': notification.id,
                     'status': notification.status,
                     'message': notification.message,
                     'created_at': notification.created_at.isoformat(),

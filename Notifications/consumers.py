@@ -1,26 +1,57 @@
 import json
 import logging
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 logger = logging.getLogger(__name__)
 
-class NotificationConsumer(AsyncWebsocketConsumer):
+class NotificationConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         user = self.scope["user"]
         if not user.is_authenticated:
-            await self.close()
-            return
+            return await self.close()
 
         self.group_name = f"notifications_{user.id}"
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
-        logger.info(f"WS CONNECTED: usuario={user}, grupo={self.group_name}")
+        logger.info(f"WS CONNECTED: usuario={user.username}, grupo={self.group_name}")
 
+        pending = await self.get_unread_notifications(user)
+        ids = [notif.id for notif in pending]
+        logger.info(f"Tengo {len(pending)} notificaciones pendientes: {ids}")
+        for notif in pending:
+            await self.send_json({
+                "id": notif.id,
+                "status": notif.status,
+                "message": notif.message,
+                "created_at": notif.created_at.isoformat(),
+                "historical": True,
+            })
+            
+        if ids:
+            await self.mark_as_read(ids)
+            logger.info(f"Marcadas como leídas: {ids}")
+
+    @database_sync_to_async
+    def get_unread_notifications(self, user):
+        from Notifications.models import Notification
+        qs = Notification.objects.filter(user=user.id, read=False)
+        return list(qs)
+    
+    @database_sync_to_async
+    def mark_as_read(self, ids):
+        from Notifications.models import Notification
+        Notification.objects.filter(id__in=ids).update(read=True)
+        
+        
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
         logger.info(f"WS DISCONNECTED: grupo={self.group_name}")
 
     async def notify(self, event):
-        logger.info(f"WS SEND to {self.group_name}: {event['message']}")
-        await self.send(text_data=json.dumps(event['message']))
+        payload = event.get('message') or event.get('data') or {}
+        await self.send_json(payload)
+        notif_id = payload.get('id')
+        if notif_id:
+            await self.mark_as_read(notif_id)
         
